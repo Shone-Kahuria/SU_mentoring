@@ -1,7 +1,7 @@
 <?php
 
 $valid_username = "Mentor 1";
-$valid_password = "mentor_123";
+$valid_password = "mentor123";
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
