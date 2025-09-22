@@ -42,7 +42,7 @@ class Form {
             <input type="password" id="password" name="password" autocomplete="new-password" required>
 
             <input type="submit" value="Sign Up" class="btn">
-            <p class="login-link">Already have an account? <a href="signin.php">Log in</a></p>
+            <p class="login-link">Already have an account? <a href="login.php">Log in</a></p>
         </form>
         <?php
     }
