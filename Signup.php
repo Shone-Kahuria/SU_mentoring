@@ -29,7 +29,7 @@ class Layout {
 class Form {
     public function signup() {
         ?>
-        <form method="post" action="signup.php" class="signup-form">
+        <form method="post" action="2F_outh.php" class="signup-form">
             <h2>Create Account</h2>
             
             <label for="username">Username</label>
