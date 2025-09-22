@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<p>OTP generated: <b>$otp</b></p>";
 
         // Send OTP via PHPMailer
-        $subject = "Verify your NOL Account";
+        $subject = "Verify your SU_mentouring Account";
         $body    = "<p>Hello <b>$username</b>,</p><p>Your verification code is: <b>$otp</b></p>";
 
         $result = sendMail($email, $subject, $body);
