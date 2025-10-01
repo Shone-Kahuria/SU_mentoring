@@ -1,0 +1,279 @@
+# ========================================
+# SU MENTORING - GITIGNORE
+# ========================================
+# This file prevents sensitive data and unnecessary files from being committed
+
+# ========================================
+# SENSITIVE CONFIGURATION FILES
+# ========================================
+# Never commit files containing passwords, API keys, or other secrets
+config/database.php
+config/secrets.php
+config/local.php
+includes/config.local.php
+includes/database.local.php
+includes/.env.php
+.env
+.env.local
+.env.production
+.env.staging
+
+# Your specific environment file (NEVER COMMIT THIS!)
+includes/.env.php
+
+# Backup configuration files that might contain credentials
+*.conf.bak
+*config*.backup
+database_config_*.php
+
+# ========================================
+# LOGS AND DEBUG FILES
+# ========================================
+# Log files often contain sensitive information
+*.log
+logs/
+error.log
+debug.log
+access.log
+php_errors.log
+mail.log
+
+# Debug and temporary files
+debug/
+*.debug
+*.tmp
+*.temp
+temp/
+tmp/
+
+# ========================================
+# UPLOADS AND USER DATA
+# ========================================
+# User uploaded files and generated content
+uploads/
+files/
+documents/
+images/profile_*
+images/uploads/
+attachments/
+media/uploads/
+
+# Session files (may contain sensitive data)
+sessions/
+session_*
+*.sess
+
+# ========================================
+# CACHE AND COMPILED FILES
+# ========================================
+# Cache directories and files
+cache/
+*.cache
+cached/
+twig_cache/
+smarty_cache/
+
+# Compiled assets
+compiled/
+minified/
+dist/
+build/
+
+# ========================================
+# DEPENDENCY DIRECTORIES
+# ========================================
+# Package manager directories
+vendor/
+node_modules/
+bower_components/
+packages/
+
+# Composer
+composer.phar
+composer.lock
+
+# NPM/Yarn
+package-lock.json
+yarn.lock
+.npm/
+.yarn/
+
+# ========================================
+# IDE AND EDITOR FILES
+# ========================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# PhpStorm/IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+*.sublime-settings
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Atom
+.atom/
+
+# ========================================
+# OPERATING SYSTEM FILES
+# ========================================
+# Windows
+Thumbs.db
+Desktop.ini
+*.lnk
+ehthumbs.db
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ========================================
+# BACKUP AND ARCHIVE FILES
+# ========================================
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*~
+
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Database dumps (may contain sensitive data)
+*.sql.gz
+*.sql.zip
+database_backup_*
+db_dump_*
+*.dump
+
+# ========================================
+# SSL CERTIFICATES AND KEYS
+# ========================================
+# Never commit SSL certificates or private keys
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+ssl/
+certificates/
+keys/
+
+# ========================================
+# EMAIL AND MAIL CONFIGURATION
+# ========================================
+# Email templates with sensitive data
+mail_config.php
+email_secrets.php
+smtp_config.php
+
+# Email queue files (may contain sensitive data)
+mail_queue/
+email_spool/
+
+# ========================================
+# TESTING AND DEVELOPMENT
+# ========================================
+# Test files and outputs
+phpunit.xml
+.phpunit.result.cache
+tests/coverage/
+coverage/
+test_results/
+
+# Development tools
+.php_cs.cache
+.php-cs-fixer.cache
+psalm.xml
+phpstan.neon
+
+# ========================================
+# DOCUMENTATION BUILD FILES
+# ========================================
+docs/_build/
+docs/build/
+site/
+
+# ========================================
+# CUSTOM APPLICATION FILES
+# ========================================
+# Add your specific files that should never be committed
+
+# Configuration overrides
+config_override.php
+local_settings.php
+
+# Runtime files
+runtime/
+var/
+storage/app/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+storage/logs/
+
+# ========================================
+# SECURITY SCANS AND REPORTS
+# ========================================
+# Security scanner outputs
+security_scan_*
+vulnerability_report_*
+audit_report_*
+
+# ========================================
+# MISCELLANEOUS
+# ========================================
+# Ignore patterns for common sensitive files
+*secret*
+*password*
+*private*
+*credential*
+*token*
+*api_key*
+
+# But allow certain common files (use ! to negate ignore)
+!README.md
+!LICENSE
+!.gitkeep
