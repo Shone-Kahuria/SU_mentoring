@@ -10,7 +10,7 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'mentoring_website');
 define('DB_USER', 'root');  // Change this to your MySQL username
-define('DB_PASS', '1234');      // Change this to your MySQL password
+define('DB_PASS', 'skahush254');      // Change this to your MySQL password
 define('DB_CHARSET', 'utf8mb4');
 
 // Database connection class
