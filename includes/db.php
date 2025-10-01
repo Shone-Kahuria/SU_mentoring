@@ -9,7 +9,7 @@ $db_config = [
     'host' => 'localhost',
     'dbname' => 'mentoring_website',
     'username' => 'root',
-    'password' => 'skahush254',
+    'password' => '1234',
     'charset' => 'utf8mb4'
 ];
 
