@@ -4,9 +4,8 @@
  * Provides email functionality for the mentoring website
  */
 
-require_once __DIR__ . '/../Plugins/PHPMailer/src/PHPMailer.php';
-require_once __DIR__ . '/../Plugins/PHPMailer/src/SMTP.php';
-require_once __DIR__ . '/../Plugins/PHPMailer/src/Exception.php';
+// Load Composer autoloader for PHPMailer
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
