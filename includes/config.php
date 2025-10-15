@@ -17,7 +17,7 @@ if (!defined('DB_HOST')) {
     define('DB_HOST', ConfigLoader::get('DB_HOST', 'localhost'));
     define('DB_NAME', ConfigLoader::get('DB_NAME', 'mentoring_website'));
     define('DB_USER', ConfigLoader::get('DB_USER', 'root'));
-    define('DB_PASS', ConfigLoader::get('DB_PASS', ''));
+    define('DB_PASS', ConfigLoader::get('DB_PASS', 'skahush254'));
     define('DB_CHARSET', ConfigLoader::get('DB_CHARSET', 'utf8mb4'));
 }
 
@@ -76,6 +76,8 @@ function executeQuery($sql, $params = []) {
         return $stmt;
     } catch (PDOException $e) {
         error_log("Query execution failed: " . $e->getMessage());
+        error_log("SQL: " . $sql);
+        error_log("Params: " . json_encode($params));
         return false;
     }
 }

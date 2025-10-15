@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_role'] = $user['role'];
                     $_SESSION['user_name'] = $user['full_name'];
                     $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_gender'] = strtolower($user['gender'] ?? '');
                     
                     // Update last login time
                     updateRecord('users', 
@@ -147,6 +148,7 @@ if (empty($_POST) && isset($_COOKIE['remember_token'])) {
         $_SESSION['user_role'] = $result['role'];
         $_SESSION['user_name'] = $result['full_name'];
         $_SESSION['user_email'] = $result['email'];
+    $_SESSION['user_gender'] = strtolower($result['gender'] ?? '');
         
         // Update last login
         updateRecord('users', 

@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         $bio = sanitizeInput($_POST['bio'] ?? '');
         $skills = sanitizeInput($_POST['skills'] ?? '');
         $experienceLevel = sanitizeInput($_POST['experience_level'] ?? '');
+        $gender = strtolower(sanitizeInput($_POST['gender'] ?? ''));
         
         // Validation
         if (empty($fullName)) {
@@ -56,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         if (!empty($experienceLevel) && !in_array($experienceLevel, ['beginner', 'intermediate', 'advanced'])) {
             $errors[] = 'Invalid experience level selected.';
         }
+
+        if (!isValidGender($gender)) {
+            $errors[] = 'Please select a valid gender option.';
+        }
         
         // Update profile if no errors
         if (empty($errors)) {
@@ -63,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 $updateData = [
                     'full_name' => $fullName,
                     'email' => $email,
+                    'gender' => $gender,
                     'bio' => $bio,
                     'skills' => $skills,
                     'experience_level' => $experienceLevel ?: null,
@@ -75,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                     // Update session data
                     $_SESSION['user_name'] = $fullName;
                     $_SESSION['user_email'] = $email;
+                    $_SESSION['user_gender'] = $gender;
                     
                     // Log activity
                     logActivity('profile_updated', [
@@ -117,21 +124,8 @@ if ($userRole === 'mentor') {
 
 $relationships = selectRecords($sql, ['user_id' => $userId]) ?: [];
 
-// Get user statistics
-$stats = [];
-try {
-    $stmt = executeQuery("CALL GetUserStats(?)", [$userId]);
-    if ($stmt) {
-        $stats = $stmt->fetch();
-    }
-} catch (Exception $e) {
-    $stats = [
-        'active_mentorships' => 0,
-        'completed_mentorships' => 0,
-        'completed_sessions' => 0,
-        'upcoming_sessions' => 0
-    ];
-}
+// Get user statistics using shared helper
+$stats = getUserStatistics($userId, $userRole);
 
 // Generate CSRF token
 $csrfToken = generateCSRFToken();
@@ -199,6 +193,18 @@ $csrfToken = generateCSRFToken();
                             required
                             maxlength="255"
                         >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" class="form-control" required>
+                            <option value="">Select your gender</option>
+                            <?php foreach (getAllowedGenders() as $genderOption): ?>
+                                <option value="<?php echo $genderOption; ?>" <?php echo ($user['gender'] ?? '') === $genderOption ? 'selected' : ''; ?>>
+                                    <?php echo ucfirst($genderOption); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -294,6 +300,7 @@ $csrfToken = generateCSRFToken();
                 
                 <div class="mt-2">
                     <h4>Account Details</h4>
+                    <p><strong>Gender:</strong> <?php echo $user['gender'] ? ucfirst($user['gender']) : 'Not set'; ?></p>
                     <p><strong>Member since:</strong> <?php echo formatDate($user['created_at'], 'F j, Y'); ?></p>
                     <p><strong>Last login:</strong> <?php echo $user['last_login'] ? formatDate($user['last_login']) : 'Never'; ?></p>
                     <p><strong>Email verified:</strong> 
@@ -410,6 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const skillsField = document.getElementById('skills');
     const bioCounter = document.getElementById('bioCount');
     const skillsCounter = document.getElementById('skillsCount');
+    const genderField = document.getElementById('gender');
     
     function updateCounter(field, counter) {
         counter.textContent = field.value.length;
@@ -437,6 +445,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             e.preventDefault();
             showAlert('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        if (!genderField.value || !['male', 'female'].includes(genderField.value)) {
+            e.preventDefault();
+            showAlert('Please select a valid gender option.', 'error');
             return;
         }
     });

@@ -24,7 +24,7 @@ if (strpos($currentDir, '/pages') !== false) {
 <body>
     <header class="header">
         <nav class="nav-container">
-            <a href="<?php echo $basePath; ?>index.php" class="logo">MentorConnect</a>
+            <a href="<?php echo $basePath; ?>pages/home.php" class="logo">MentorConnect</a>
             <ul class="nav-links">
                 <?php if (isLoggedIn()): ?>
                     <li><a href="<?php echo $basePath; ?>pages/dashboard.php">Dashboard</a></li>

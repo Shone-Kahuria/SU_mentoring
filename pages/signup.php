@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'email' => sanitizeInput($_POST['email'] ?? ''),
             'password' => $_POST['password'] ?? '',
             'confirm_password' => $_POST['confirm_password'] ?? '',
+            'gender' => strtolower(sanitizeInput($_POST['gender'] ?? '')),
             'role' => sanitizeInput($_POST['role'] ?? '')
         ];
         
@@ -69,6 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Passwords do not match.';
         }
         
+        if (empty($formData['gender']) || !isValidGender($formData['gender'])) {
+            $errors[] = 'Please select a valid gender.';
+        }
+
         if (empty($formData['role']) || !in_array($formData['role'], ['mentor', 'mentee'])) {
             $errors[] = 'Please select a valid role.';
         }
@@ -85,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userData = [
                     'full_name' => $formData['full_name'],
                     'email' => $formData['email'],
+                    'gender' => $formData['gender'],
                     'password_hash' => hashPassword($formData['password']),
                     'role' => $formData['role'],
                     'email_verification_token' => generateRandomString(64),
@@ -101,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     logActivity('user_signup', [
                         'user_id' => $userId,
                         'role' => $formData['role'],
+                        'gender' => $formData['gender'],
                         'ip_address' => $clientIP
                     ]);
                     
@@ -207,6 +214,23 @@ $csrfToken = generateCSRFToken();
                     <button type="button" class="password-toggle" aria-label="Show password">👁️</button>
                 </div>
             </div>
+
+            <!-- Gender Selection -->
+            <div class="form-group">
+                <label>Gender *</label>
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="gender" value="male" 
+                               <?php echo (($formData['gender'] ?? '') === 'male') ? 'checked' : ''; ?> required>
+                        <span>Male</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="gender" value="female" 
+                               <?php echo (($formData['gender'] ?? '') === 'female') ? 'checked' : ''; ?> required>
+                        <span>Female</span>
+                    </label>
+                </div>
+            </div>
             
             <!-- Role Selection -->
             <div class="form-group">
@@ -276,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = document.getElementById('email').value.trim();
         const password = passwordField.value;
         const confirmPassword = confirmPasswordField.value;
+    const gender = document.querySelector('input[name="gender"]:checked');
         const role = document.querySelector('input[name="role"]:checked');
         
         let errors = [];
@@ -296,6 +321,10 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push('Passwords do not match.');
         }
         
+        if (!gender) {
+            errors.push('Please select your gender.');
+        }
+
         if (!role) {
             errors.push('Please select your role.');
         }
