@@ -11,6 +11,7 @@
  */
 
 require_once '../includes/functions.php';
+require_once '../plugins/PHPMailer/mail.php'; // Add PHPMailer mail functions
 startSession();
 
 $pageTitle = 'Sign Up - MentorConnect';
@@ -100,20 +101,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userId = insertRecord('users', $userData);
                 
                 if ($userId) {
-                    // Send welcome email
-                    sendWelcomeEmail($formData['email'], $formData['full_name'], $formData['role']);
+                    // Send OTP email for verification
+                    $result = sendOTP($formData['email']);
                     
-                    // Log the signup activity
-                    logActivity('user_signup', [
-                        'user_id' => $userId,
-                        'role' => $formData['role'],
-                        'gender' => $formData['gender'],
-                        'ip_address' => $clientIP
-                    ]);
-                    
-                    // Set success message and redirect
-                    setFlashMessage('Account created successfully! Please log in to continue.', 'success');
-                    redirect('login.php');
+                        if (is_array($result) && isset($result['otp'])) {
+                            // Store OTP and user ID in session for verification
+                            $_SESSION['temp_user_id'] = $userId;
+                            $_SESSION['otp'] = $result['otp'];
+                            $_SESSION['otp_time'] = time();
+                        
+                            // Log the signup activity
+                            logActivity('user_signup', [
+                                'user_id' => $userId,
+                                'role' => $formData['role'],
+                                'gender' => $formData['gender'],
+                                'ip_address' => $clientIP
+                            ]);
+                        
+                            // Set success message and redirect
+                            setFlashMessage('Account created! Please enter the verification code sent to your email.', 'success');
+                            ob_end_clean(); // Clear any output buffers
+                            redirect('verify-otp.php');
+                        } else {
+                            $errors[] = 'Failed to send verification code. Please try again.';
+                        }
                 } else {
                     $errors[] = 'Failed to create account. Please try again.';
                 }
