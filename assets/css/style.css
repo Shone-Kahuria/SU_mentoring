@@ -385,3 +385,218 @@ body {
 .show {
     display: block;
 }
+
+/* ========================================
+   Mentor Card Styles (Find Mentor Page)
+   ======================================== */
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-bar input[type="text"] {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+}
+
+.search-bar input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(0, 87, 183, 0.1);
+}
+
+.search-bar select {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 15px;
+    background: white;
+    cursor: pointer;
+    min-width: 200px;
+    transition: border-color 0.3s;
+}
+
+.search-bar select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+/* Mentor Grid */
+.mentor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    margin: 20px 0;
+}
+
+/* Mentor Card */
+.mentor-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.mentor-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.mentor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border-color: var(--primary-blue);
+}
+
+.mentor-card:hover::before {
+    transform: scaleX(1);
+}
+
+.mentor-card h3 {
+    color: var(--text-dark);
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* Experience Badge */
+.experience-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 10px 0 15px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Bio Section */
+.mentor-card .bio {
+    color: var(--text-light);
+    margin: 15px 0;
+    line-height: 1.6;
+    min-height: 60px;
+    flex-grow: 1;
+    font-size: 14px;
+}
+
+/* Skills Section */
+.mentor-card .skills {
+    color: var(--text-dark);
+    font-size: 14px;
+    margin: 12px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-blue);
+}
+
+.mentor-card .skills strong {
+    color: var(--primary-blue);
+}
+
+/* Mentee Count */
+.mentor-card .mentees {
+    color: #999;
+    font-size: 13px;
+    margin: 10px 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mentor-card .mentees::before {
+    content: '👥';
+    font-size: 16px;
+}
+
+/* Request Button in Card */
+.mentor-card form {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.mentor-card .btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.mentor-card .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 87, 183, 0.3);
+}
+
+/* Empty State */
+.mentor-grid + p {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    font-size: 18px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed var(--border-color);
+}
+
+/* Responsive Design for Mentor Cards */
+@media (max-width: 768px) {
+    .mentor-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .search-bar {
+        flex-direction: column;
+    }
+    
+    .search-bar select {
+        min-width: 100%;
+    }
+    
+    .mentor-card {
+        padding: 20px;
+    }
+    
+    .mentor-card h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .mentor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
