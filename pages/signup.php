@@ -102,29 +102,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($userId) {
                     // Send OTP email for verification
-                    $result = sendOTP($formData['email']);
+                    $result = sendOTP($formData['email'], $formData['full_name']);
                     
-                        if (is_array($result) && isset($result['otp'])) {
-                            // Store OTP and user ID in session for verification
-                            $_SESSION['temp_user_id'] = $userId;
-                            $_SESSION['otp'] = $result['otp'];
-                            $_SESSION['otp_time'] = time();
+                    if ($result === false) {
+                        // OTP sending failed completely - clean up the user record
+                        deleteRecord('users', 'id = :id', ['id' => $userId]);
+                        $errors[] = 'Failed to send verification code. Please try again or contact support.';
+                        error_log("OTP sending failed for user email: {$formData['email']}");
                         
-                            // Log the signup activity
-                            logActivity('user_signup', [
-                                'user_id' => $userId,
-                                'role' => $formData['role'],
-                                'gender' => $formData['gender'],
-                                'ip_address' => $clientIP
-                            ]);
+                    } elseif (is_array($result) && isset($result['otp'])) {
+                        // OTP generated successfully (sent or dev mode)
+                        $_SESSION['temp_user_id'] = $userId;
+                        $_SESSION['otp'] = $result['otp'];
+                        $_SESSION['otp_time'] = time();
                         
-                            // Set success message and redirect
-                            setFlashMessage('Account created! Please enter the verification code sent to your email.', 'success');
-                            ob_end_clean(); // Clear any output buffers
-                            redirect('verify-otp.php');
+                        // Log the signup activity
+                        logActivity('user_signup', [
+                            'user_id' => $userId,
+                            'role' => $formData['role'],
+                            'gender' => $formData['gender'],
+                            'ip_address' => $clientIP
+                        ]);
+                        
+                        // Different messages for dev mode vs production
+                        if (isset($result['dev_mode']) && $result['dev_mode']) {
+                            // Development mode - SMTP not configured
+                            setFlashMessage('Account created! [DEV MODE] Check server logs for your verification code.', 'info');
+                            error_log("=== DEVELOPMENT MODE OTP ===");
+                            error_log("User: {$formData['email']}");
+                            error_log("OTP Code: {$result['otp']}");
+                            error_log("===========================");
                         } else {
-                            $errors[] = 'Failed to send verification code. Please try again.';
+                            // Production mode - email sent
+                            setFlashMessage('Account created! Please enter the verification code sent to your email.', 'success');
                         }
+                        
+                        ob_end_clean(); // Clear any output buffers
+                        redirect('verify-otp.php');
+                    } else {
+                        // Unexpected response format
+                        deleteRecord('users', 'id = :id', ['id' => $userId]);
+                        $errors[] = 'An unexpected error occurred. Please try again.';
+                        error_log("Unexpected OTP response format for user: {$formData['email']}");
+                    }
                 } else {
                     $errors[] = 'Failed to create account. Please try again.';
                 }

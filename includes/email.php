@@ -395,6 +395,209 @@ function getBaseUrl() {
 }
 
 /**
+ * Generate and send OTP verification code
+ * @param string $email User's email address
+ * @param string $userName Optional user name for personalization
+ * @return array|false Returns array with 'otp' key on success, false on failure
+ */
+function sendOTP($email, $userName = 'User') {
+    try {
+        // Generate 6-digit OTP
+        $otp = str_pad(strval(rand(0, 999999)), 6, '0', STR_PAD_LEFT);
+        
+        // Create email
+        $mail = createMailer();
+        if (!$mail) {
+            error_log("Failed to create mailer instance for OTP");
+            return false;
+        }
+        
+        $mail->addAddress($email);
+        $mail->Subject = 'Your MentorConnect Verification Code';
+        
+        // Email body
+        $mail->Body = getOTPEmailTemplate($otp, $userName);
+        $mail->AltBody = "Your MentorConnect verification code is: $otp. This code will expire in 10 minutes.";
+        
+        // For development: if SMTP is not configured, just return the OTP without sending
+        global $email_config;
+        if (empty($email_config['smtp_username']) || $email_config['smtp_host'] === 'localhost') {
+            error_log("OTP for $email: $otp (Email not sent - SMTP not configured)");
+            return ['otp' => $otp, 'sent' => false, 'dev_mode' => true];
+        }
+        
+        // Send email in production
+        if ($mail->send()) {
+            error_log("OTP sent successfully to $email");
+            return ['otp' => $otp, 'sent' => true];
+        } else {
+            error_log("OTP email failed: " . $mail->ErrorInfo);
+            return false;
+        }
+    } catch (Exception $e) {
+        error_log("OTP generation error: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get OTP email template
+ * @param string $otp The 6-digit OTP code
+ * @param string $userName User's name for personalization
+ * @return string HTML email template
+ */
+function getOTPEmailTemplate($otp, $userName = 'User') {
+    return '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }
+            .email-container {
+                max-width: 600px;
+                margin: 20px auto;
+                background: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .email-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #ffffff;
+                padding: 30px 20px;
+                text-align: center;
+            }
+            .email-header h1 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 600;
+            }
+            .email-body {
+                padding: 40px 30px;
+            }
+            .greeting {
+                font-size: 18px;
+                color: #333;
+                margin-bottom: 20px;
+            }
+            .message {
+                color: #555;
+                margin-bottom: 30px;
+                line-height: 1.8;
+            }
+            .otp-box {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #ffffff;
+                padding: 25px;
+                text-align: center;
+                border-radius: 8px;
+                margin: 30px 0;
+            }
+            .otp-label {
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 10px;
+                opacity: 0.9;
+            }
+            .otp-code {
+                font-size: 36px;
+                font-weight: bold;
+                letter-spacing: 8px;
+                font-family: "Courier New", monospace;
+                margin: 10px 0;
+            }
+            .warning-box {
+                background: #fff3cd;
+                border-left: 4px solid #ffc107;
+                padding: 15px;
+                margin: 20px 0;
+                border-radius: 4px;
+            }
+            .warning-box strong {
+                color: #856404;
+                display: block;
+                margin-bottom: 5px;
+            }
+            .warning-box p {
+                color: #856404;
+                margin: 0;
+                font-size: 14px;
+            }
+            .info-text {
+                color: #666;
+                font-size: 14px;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+            }
+            .email-footer {
+                background: #f8f9fa;
+                padding: 20px;
+                text-align: center;
+                color: #666;
+                font-size: 12px;
+            }
+            .email-footer p {
+                margin: 5px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="email-header">
+                <h1>🎓 MentorConnect</h1>
+            </div>
+            
+            <div class="email-body">
+                <div class="greeting">
+                    Hello ' . htmlspecialchars($userName) . ',
+                </div>
+                
+                <div class="message">
+                    Thank you for creating an account with MentorConnect! To complete your registration, 
+                    please verify your email address using the verification code below.
+                </div>
+                
+                <div class="otp-box">
+                    <div class="otp-label">Your Verification Code</div>
+                    <div class="otp-code">' . htmlspecialchars($otp) . '</div>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⏰ Important:</strong>
+                    <p>This verification code will expire in <strong>10 minutes</strong>. 
+                    If you did not request this code, please ignore this email.</p>
+                </div>
+                
+                <div class="info-text">
+                    <p><strong>What happens next?</strong></p>
+                    <p>Enter this code on the verification page to activate your account and start your mentoring journey!</p>
+                </div>
+            </div>
+            
+            <div class="email-footer">
+                <p><strong>MentorConnect</strong></p>
+                <p>Connecting mentors and mentees for a brighter future</p>
+                <p style="margin-top: 15px; color: #999;">
+                    This is an automated message. Please do not reply to this email.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>';
+}
+
+/**
  * Test email functionality
  */
 function testEmailConfiguration() {
