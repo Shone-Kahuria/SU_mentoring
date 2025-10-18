@@ -68,17 +68,19 @@ function getDBConnection() {
  * @param array $params Parameters to bind
  * @return PDOStatement|false
  */
-function executeQuery($sql, $params = []) {
-    try {
-        $pdo = getDBConnection();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
-    } catch (PDOException $e) {
-        error_log("Query execution failed: " . $e->getMessage());
-        error_log("SQL: " . $sql);
-        error_log("Params: " . json_encode($params));
-        return false;
+if (!function_exists('executeQuery')) {
+    function executeQuery($sql, $params = []) {
+        try {
+            $pdo = getDBConnection();
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            error_log("Query execution failed: " . $e->getMessage());
+            error_log("SQL: " . $sql);
+            error_log("Params: " . json_encode($params));
+            return false;
+        }
     }
 }
 
@@ -88,21 +90,23 @@ function executeQuery($sql, $params = []) {
  * @param array $data Associative array of column => value
  * @return int|false Last insert ID or false on failure
  */
-function insertRecord($table, $data) {
-    try {
-        $columns = implode(', ', array_keys($data));
-        $placeholders = ':' . implode(', :', array_keys($data));
-        
-        $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
-        $stmt = executeQuery($sql, $data);
-        
-        if ($stmt) {
-            return getDBConnection()->lastInsertId();
+if (!function_exists('insertRecord')) {
+    function insertRecord($table, $data) {
+        try {
+            $columns = implode(', ', array_keys($data));
+            $placeholders = ':' . implode(', :', array_keys($data));
+            
+            $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
+            $stmt = executeQuery($sql, $data);
+            
+            if ($stmt) {
+                return getDBConnection()->lastInsertId();
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Insert failed: " . $e->getMessage());
+            return false;
         }
-        return false;
-    } catch (Exception $e) {
-        error_log("Insert failed: " . $e->getMessage());
-        return false;
     }
 }
 
@@ -114,22 +118,24 @@ function insertRecord($table, $data) {
  * @param array $whereParams Parameters for WHERE clause
  * @return bool Success status
  */
-function updateRecord($table, $data, $where, $whereParams = []) {
-    try {
-        $setParts = [];
-        foreach (array_keys($data) as $column) {
-            $setParts[] = "{$column} = :{$column}";
+if (!function_exists('updateRecord')) {
+    function updateRecord($table, $data, $where, $whereParams = []) {
+        try {
+            $setParts = [];
+            foreach (array_keys($data) as $column) {
+                $setParts[] = "{$column} = :{$column}";
+            }
+            $setClause = implode(', ', $setParts);
+            
+            $sql = "UPDATE {$table} SET {$setClause} WHERE {$where}";
+            $params = array_merge($data, $whereParams);
+            
+            $stmt = executeQuery($sql, $params);
+            return $stmt !== false;
+        } catch (Exception $e) {
+            error_log("Update failed: " . $e->getMessage());
+            return false;
         }
-        $setClause = implode(', ', $setParts);
-        
-        $sql = "UPDATE {$table} SET {$setClause} WHERE {$where}";
-        $params = array_merge($data, $whereParams);
-        
-        $stmt = executeQuery($sql, $params);
-        return $stmt !== false;
-    } catch (Exception $e) {
-        error_log("Update failed: " . $e->getMessage());
-        return false;
     }
 }
 
@@ -140,14 +146,16 @@ function updateRecord($table, $data, $where, $whereParams = []) {
  * @param array $params Parameters for WHERE clause
  * @return bool Success status
  */
-function deleteRecord($table, $where, $params = []) {
-    try {
-        $sql = "DELETE FROM {$table} WHERE {$where}";
-        $stmt = executeQuery($sql, $params);
-        return $stmt !== false;
-    } catch (Exception $e) {
-        error_log("Delete failed: " . $e->getMessage());
-        return false;
+if (!function_exists('deleteRecord')) {
+    function deleteRecord($table, $where, $params = []) {
+        try {
+            $sql = "DELETE FROM {$table} WHERE {$where}";
+            $stmt = executeQuery($sql, $params);
+            return $stmt !== false;
+        } catch (Exception $e) {
+            error_log("Delete failed: " . $e->getMessage());
+            return false;
+        }
     }
 }
 
@@ -157,16 +165,18 @@ function deleteRecord($table, $where, $params = []) {
  * @param array $params Parameters to bind
  * @return array|false Array of records or false on failure
  */
-function selectRecords($sql, $params = []) {
-    try {
-        $stmt = executeQuery($sql, $params);
-        if ($stmt) {
-            return $stmt->fetchAll();
+if (!function_exists('selectRecords')) {
+    function selectRecords($sql, $params = []) {
+        try {
+            $stmt = executeQuery($sql, $params);
+            if ($stmt) {
+                return $stmt->fetchAll();
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Select failed: " . $e->getMessage());
+            return false;
         }
-        return false;
-    } catch (Exception $e) {
-        error_log("Select failed: " . $e->getMessage());
-        return false;
     }
 }
 
@@ -176,16 +186,18 @@ function selectRecords($sql, $params = []) {
  * @param array $params Parameters to bind
  * @return array|false Single record or false on failure
  */
-function selectRecord($sql, $params = []) {
-    try {
-        $stmt = executeQuery($sql, $params);
-        if ($stmt) {
-            return $stmt->fetch();
+if (!function_exists('selectRecord')) {
+    function selectRecord($sql, $params = []) {
+        try {
+            $stmt = executeQuery($sql, $params);
+            if ($stmt) {
+                return $stmt->fetch();
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Select failed: " . $e->getMessage());
+            return false;
         }
-        return false;
-    } catch (Exception $e) {
-        error_log("Select failed: " . $e->getMessage());
-        return false;
     }
 }
 
