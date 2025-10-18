@@ -37,11 +37,16 @@ $mentors = selectRecords($sql, [
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Find Your Mentor</title>
-    <link rel="stylesheet" href="style.css">
-    </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Mentor - SU Mentoring</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
 <body>
-    <h1>Find Your Mentor</h1>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="container">
+        <h1>Find Your Mentor</h1>
 
     <div class="search-bar">
         <input type="text" 
@@ -100,5 +105,8 @@ $mentors = selectRecords($sql, [
         });
     }
     </script>
+    </div>
+    
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>
