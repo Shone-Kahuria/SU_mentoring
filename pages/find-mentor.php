@@ -2,7 +2,13 @@
 // Include necessary files
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
-require_once '../includes/check_session.php';
+
+// Start session and check authentication
+startSession();
+if (!isLoggedIn()) {
+    header('Location: login.php');
+    exit();
+}
 
 $userId = getCurrentUserId();
 $userGender = getUserGender($userId); // Returns 'male' or 'female'
