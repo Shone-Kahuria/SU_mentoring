@@ -13,14 +13,14 @@ use PHPMailer\PHPMailer\Exception;
 
 // Email configuration
 $email_config = [
-    'smtp_host' => 'localhost',        // Change to your SMTP server
-    'smtp_port' => 587,                // or 465 for SSL
-    'smtp_secure' => 'tls',            // 'ssl' or 'tls'
-    'smtp_username' => '',             // Your email username
-    'smtp_password' => '',             // Your email password
-    'from_email' => 'noreply@mentorconnect.com',
+    'smtp_host' => 'smtp.gmail.com',
+    'smtp_port' => 587,
+    'smtp_secure' => 'tls',
+    'smtp_username' => 'shonekahuria@gmail.com',
+    'smtp_password' => 'dmpkhjaffkwxakou',
+    'from_email' => 'shonekahuria@gmail.com',
     'from_name' => 'MentorConnect',
-    'admin_email' => 'admin@mentorconnect.com'
+    'admin_email' => 'shonekahuria@gmail.com'
 ];
 
 /**
