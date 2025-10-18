@@ -7,6 +7,7 @@ require_once '../includes/check_session.php';
 $userId = getCurrentUserId();
 $userGender = getUserGender($userId); // Returns 'male' or 'female'
 $csrfToken = generateCSRFToken(); // Generate token for the form
+$pageTitle = 'Find Your Mentor - SU Mentoring';
 
 // 1. Query Same-Gender Mentors (B)
 $sql = "
@@ -32,19 +33,11 @@ $mentors = selectRecords($sql, [
     'user_gender' => $userGender,
     'user_id' => $userId
 ]);
+
+// Include header which contains opening HTML, head, and body tags
+include '../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Your Mentor - SU Mentoring</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-    <?php include '../includes/header.php'; ?>
-    
     <div class="container">
         <h1>Find Your Mentor</h1>
 
@@ -106,7 +99,5 @@ $mentors = selectRecords($sql, [
     }
     </script>
     </div>
-    
-    <?php include '../includes/footer.php'; ?>
-</body>
-</html>
+
+<?php include '../includes/footer.php'; ?>
