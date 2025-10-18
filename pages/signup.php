@@ -11,7 +11,7 @@
  */
 
 require_once '../includes/functions.php';
-require_once '../plugins/PHPMailer/mail.php'; // Add PHPMailer mail functions
+// PHPMailer is loaded via Composer autoloader in functions.php
 startSession();
 
 $pageTitle = 'Sign Up - MentorConnect';
