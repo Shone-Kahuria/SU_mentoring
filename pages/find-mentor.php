@@ -1,11 +1,9 @@
 <?php
-// Include necessary files (e.g., database connection, user functions, security functions)
-// require 'includes/db.php';
-// require 'includes/user_functions.php'; 
-// require 'includes/security.php'; // For CSRF
+// Include necessary files
+require_once '../includes/db.php';
+require_once '../includes/functions.php';
+require_once '../includes/check_session.php';
 
-// Assume these functions are defined elsewhere:
-// getCurrentUserId(), getUserGender($userId), generateCSRFToken(), selectRecords($sql, $params)
 $userId = getCurrentUserId();
 $userGender = getUserGender($userId); // Returns 'male' or 'female'
 $csrfToken = generateCSRFToken(); // Generate token for the form
