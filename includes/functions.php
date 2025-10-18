@@ -28,6 +28,27 @@ function sanitizeInput($data) {
 }
 
 /**
+ * List of allowed gender values for the platform
+ * @return array<string>
+ */
+function getAllowedGenders() {
+    return ['male', 'female'];
+}
+
+/**
+ * Check whether the provided gender value is valid
+ * @param string|null $gender
+ * @return bool
+ */
+function isValidGender($gender) {
+    if ($gender === null) {
+        return false;
+    }
+
+    return in_array(strtolower($gender), getAllowedGenders(), true);
+}
+
+/**
  * Validate email address
  * @param string $email Email to validate
  * @return bool True if valid email
@@ -132,8 +153,145 @@ function getCurrentUser() {
         return null;
     }
     
-    $sql = "SELECT id, full_name, email, role, created_at FROM users WHERE id = :id";
+    $sql = "SELECT id, full_name, email, gender, role, bio, skills, experience_level, is_active, last_login, created_at, updated_at, 0 AS email_verified FROM users WHERE id = :id";
     return selectRecord($sql, ['id' => $userId]);
+}
+
+/**
+ * Fetch the stored gender for a user
+ * @param int $userId
+ * @return string|null
+ */
+function getUserGender($userId) {
+    if (!$userId) {
+        return null;
+    }
+
+    $record = selectRecord("SELECT gender FROM users WHERE id = :id", ['id' => $userId]);
+    return $record && isset($record['gender']) ? strtolower($record['gender']) : null;
+}
+
+/**
+ * Ensure mentor and mentee share the same gender when establishing mentorships
+ * @param int $mentorId
+ * @param int $menteeId
+ * @return array{ok: bool, message: string}
+ */
+function validateSameGenderMentorship($mentorId, $menteeId) {
+    $mentorGender = getUserGender($mentorId);
+    $menteeGender = getUserGender($menteeId);
+
+    if (!isValidGender($mentorGender)) {
+        return [
+            'ok' => false,
+            'message' => 'Mentor must set a valid gender before accepting mentorships.'
+        ];
+    }
+
+    if (!isValidGender($menteeGender)) {
+        return [
+            'ok' => false,
+            'message' => 'Mentee must set a valid gender before requesting mentorships.'
+        ];
+    }
+
+    if ($mentorGender !== $menteeGender) {
+        return [
+            'ok' => false,
+            'message' => 'Mentors can only pair with mentees who share the same gender.'
+        ];
+    }
+
+    return ['ok' => true, 'message' => ''];
+}
+
+/**
+ * Get aggregate statistics for dashboards and profile pages.
+ * Falls back gracefully if tables are missing (e.g., before setup).
+ *
+ * @param int|null $userId
+ * @param string|null $userRole
+ * @return array<string, int>
+ */
+function getUserStatistics($userId, $userRole = null) {
+    $stats = [
+        'active_mentorships' => 0,
+        'completed_mentorships' => 0,
+        'completed_sessions' => 0,
+        'upcoming_sessions' => 0
+    ];
+
+    if (!$userId) {
+        return $stats;
+    }
+
+    if ($userRole === null) {
+        $userRole = getCurrentUserRole();
+    }
+
+    try {
+        $tableCheck = executeQuery("SHOW TABLES LIKE 'mentorships'");
+        if ($tableCheck === false || !$tableCheck->fetch()) {
+            return $stats;
+        }
+
+        if ($userRole === 'mentor') {
+            $activeResult = selectRecord(
+                "SELECT COUNT(*) AS count FROM mentorships WHERE mentor_id = :user_id AND status = 'active'",
+                ['user_id' => $userId]
+            );
+            $completedResult = selectRecord(
+                "SELECT COUNT(*) AS count FROM mentorships WHERE mentor_id = :user_id AND status = 'completed'",
+                ['user_id' => $userId]
+            );
+        } else {
+            $activeResult = selectRecord(
+                "SELECT COUNT(*) AS count FROM mentorships WHERE mentee_id = :user_id AND status = 'active'",
+                ['user_id' => $userId]
+            );
+            $completedResult = selectRecord(
+                "SELECT COUNT(*) AS count FROM mentorships WHERE mentee_id = :user_id AND status = 'completed'",
+                ['user_id' => $userId]
+            );
+        }
+
+        if ($activeResult && isset($activeResult['count'])) {
+            $stats['active_mentorships'] = (int)$activeResult['count'];
+        }
+
+        if ($completedResult && isset($completedResult['count'])) {
+            $stats['completed_mentorships'] = (int)$completedResult['count'];
+        }
+
+        $completedSessionsResult = selectRecord(
+            "SELECT COUNT(*) AS count FROM sessions s 
+             JOIN mentorships m ON s.mentorship_id = m.id 
+             WHERE (m.mentor_id = :user_id1 OR m.mentee_id = :user_id2) 
+             AND s.status = 'completed'",
+            ['user_id1' => $userId, 'user_id2' => $userId]
+        );
+
+        if ($completedSessionsResult && isset($completedSessionsResult['count'])) {
+            $stats['completed_sessions'] = (int)$completedSessionsResult['count'];
+        }
+
+        $upcomingSessionsResult = selectRecord(
+            "SELECT COUNT(*) AS count FROM sessions s 
+             JOIN mentorships m ON s.mentorship_id = m.id 
+             WHERE (m.mentor_id = :user_id1 OR m.mentee_id = :user_id2) 
+             AND s.scheduled_date > NOW() 
+             AND s.status = 'scheduled'",
+            ['user_id1' => $userId, 'user_id2' => $userId]
+        );
+
+        if ($upcomingSessionsResult && isset($upcomingSessionsResult['count'])) {
+            $stats['upcoming_sessions'] = (int)$upcomingSessionsResult['count'];
+        }
+    } catch (Exception $e) {
+        error_log('User statistics error: ' . $e->getMessage());
+    }
+
+    return $stats;
 }
 
 /**
@@ -150,7 +308,13 @@ function redirect($url) {
  */
 function requireLogin() {
     if (!isLoggedIn()) {
-        redirect('login.php');
+        // Determine correct path based on current location
+        $currentDir = dirname($_SERVER['PHP_SELF']);
+        if (strpos($currentDir, '/pages') !== false) {
+            redirect('login.php');
+        } else {
+            redirect('pages/login.php');
+        }
     }
 }
 
@@ -162,7 +326,13 @@ function requireRole($requiredRole) {
     requireLogin();
     $userRole = getCurrentUserRole();
     if ($userRole !== $requiredRole) {
-        redirect('dashboard.php');
+        // Determine correct path based on current location
+        $currentDir = dirname($_SERVER['PHP_SELF']);
+        if (strpos($currentDir, '/pages') !== false) {
+            redirect('dashboard.php');
+        } else {
+            redirect('pages/dashboard.php');
+        }
     }
 }
 

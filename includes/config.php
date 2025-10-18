@@ -6,12 +6,20 @@
  * for the mentoring website project.
  */
 
-// Database configuration constants
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'mentoring_website');
-define('DB_USER', 'root');  // Change this to your MySQL username
-define('DB_PASS', 'skahush254');      // Change this to your MySQL password
-define('DB_CHARSET', 'utf8mb4');
+// Load secure configuration
+require_once __DIR__ . '/config_loader.php';
+ConfigLoader::load();
+
+// Legacy constants for backward compatibility
+// These are now loaded from .env.php file
+if (!defined('DB_HOST')) {
+    // Fallback values (should not be used in production)
+    define('DB_HOST', ConfigLoader::get('DB_HOST', 'localhost'));
+    define('DB_NAME', ConfigLoader::get('DB_NAME', 'mentoring_website'));
+    define('DB_USER', ConfigLoader::get('DB_USER', 'root'));
+    define('DB_PASS', ConfigLoader::get('DB_PASS', ''));
+    define('DB_CHARSET', ConfigLoader::get('DB_CHARSET', 'utf8mb4'));
+}
 
 // Database connection class
 class Database {
@@ -68,6 +76,8 @@ function executeQuery($sql, $params = []) {
         return $stmt;
     } catch (PDOException $e) {
         error_log("Query execution failed: " . $e->getMessage());
+        error_log("SQL: " . $sql);
+        error_log("Params: " . json_encode($params));
         return false;
     }
 }

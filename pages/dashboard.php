@@ -22,95 +22,128 @@ $userId = getCurrentUserId();
 
 $pageTitle = ucfirst($userRole) . ' Dashboard - MentorConnect';
 
-// Get user statistics
-$stats = [];
+// Load user statistics using shared helper (handles missing tables gracefully)
+$stats = getUserStatistics($userId, $userRole);
+
+// Get mentorships based on role - with error handling
+$mentorships = [];
 try {
-    $stmt = executeQuery("CALL GetUserStats(?)", [$userId]);
-    if ($stmt) {
-        $stats = $stmt->fetch();
+    if ($userRole === 'mentor') {
+        $sql = "SELECT m.*, u.full_name as mentee_name, u.email as mentee_email, u.id as mentee_id
+                FROM mentorships m 
+                JOIN users u ON m.mentee_id = u.id 
+                WHERE m.mentor_id = :user_id AND m.status = 'active'
+                ORDER BY m.created_at DESC";
+    } else {
+        $sql = "SELECT m.*, u.full_name as mentor_name, u.email as mentor_email, u.id as mentor_id
+                FROM mentorships m 
+                JOIN users u ON m.mentor_id = u.id 
+                WHERE m.mentee_id = :user_id AND m.status = 'active'
+                ORDER BY m.created_at DESC";
+    }
+    
+    $mentorships = selectRecords($sql, ['user_id' => $userId]) ?: [];
+} catch (Exception $e) {
+    error_log("Dashboard mentorships error: " . $e->getMessage());
+    $mentorships = [];
+}
+
+// Get upcoming sessions - with error handling
+$upcomingSessions = [];
+try {
+    $sql = "SELECT s.*, m.mentor_id, m.mentee_id,
+                   mentor.full_name as mentor_name,
+                   mentee.full_name as mentee_name
+            FROM sessions s
+            JOIN mentorships m ON s.mentorship_id = m.id
+            JOIN users mentor ON m.mentor_id = mentor.id
+            JOIN users mentee ON m.mentee_id = mentee.id
+            WHERE (m.mentor_id = :user_id1 OR m.mentee_id = :user_id2)
+            AND s.scheduled_date > NOW()
+            AND s.status = 'scheduled'
+            ORDER BY s.scheduled_date ASC
+            LIMIT 5";
+    
+    $upcomingSessions = selectRecords($sql, ['user_id1' => $userId, 'user_id2' => $userId]) ?: [];
+} catch (Exception $e) {
+    error_log("Dashboard sessions error: " . $e->getMessage());
+    $upcomingSessions = [];
+}
+
+// Get recent messages - with error handling
+$recentMessages = [];
+try {
+    $sql = "SELECT msg.*, m.mentor_id, m.mentee_id,
+                   sender.full_name as sender_name,
+                   CASE 
+                       WHEN msg.sender_id = :user_id1 THEN 'sent'
+                       ELSE 'received'
+                   END as message_type
+            FROM messages msg
+            JOIN mentorships m ON msg.mentorship_id = m.id
+            JOIN users sender ON msg.sender_id = sender.id
+            WHERE (m.mentor_id = :user_id2 OR m.mentee_id = :user_id3)
+            ORDER BY msg.created_at DESC
+            LIMIT 5";
+    
+    $recentMessages = selectRecords($sql, ['user_id1' => $userId, 'user_id2' => $userId, 'user_id3' => $userId]) ?: [];
+} catch (Exception $e) {
+    error_log("Dashboard messages error: " . $e->getMessage());
+    $recentMessages = [];
+}
+
+// Get pending mentorship requests - with error handling
+$pendingRequests = [];
+try {
+    if ($userRole === 'mentor') {
+        $sql = "SELECT m.*, u.full_name as mentee_name, u.email as mentee_email
+                FROM mentorships m 
+                JOIN users u ON m.mentee_id = u.id 
+                WHERE m.mentor_id = :user_id AND m.status = 'pending'
+                ORDER BY m.created_at DESC";
+        $pendingRequests = selectRecords($sql, ['user_id' => $userId]) ?: [];
+    } else {
+        $sql = "SELECT m.*, u.full_name as mentor_name, u.email as mentor_email
+                FROM mentorships m 
+                JOIN users u ON m.mentor_id = u.id 
+                WHERE m.mentee_id = :user_id AND m.status = 'pending'
+                ORDER BY m.created_at DESC";
+        $pendingRequests = selectRecords($sql, ['user_id' => $userId]) ?: [];
     }
 } catch (Exception $e) {
-    error_log("Dashboard stats error: " . $e->getMessage());
-    $stats = [
-        'active_mentorships' => 0,
-        'completed_mentorships' => 0,
-        'completed_sessions' => 0,
-        'upcoming_sessions' => 0
-    ];
+    error_log("Dashboard pending requests error: " . $e->getMessage());
+    $pendingRequests = [];
 }
 
-// Get mentorships based on role
-$mentorships = [];
-if ($userRole === 'mentor') {
-    $sql = "SELECT m.*, u.full_name as mentee_name, u.email as mentee_email, u.id as mentee_id
-            FROM mentorships m 
-            JOIN users u ON m.mentee_id = u.id 
-            WHERE m.mentor_id = :user_id AND m.status = 'active'
-            ORDER BY m.created_at DESC";
-} else {
-    $sql = "SELECT m.*, u.full_name as mentor_name, u.email as mentor_email, u.id as mentor_id
-            FROM mentorships m 
-            JOIN users u ON m.mentor_id = u.id 
-            WHERE m.mentee_id = :user_id AND m.status = 'active'
-            ORDER BY m.created_at DESC";
-}
-
-$mentorships = selectRecords($sql, ['user_id' => $userId]) ?: [];
-
-// Get upcoming sessions
-$sql = "SELECT s.*, m.mentor_id, m.mentee_id,
-               mentor.full_name as mentor_name,
-               mentee.full_name as mentee_name
-        FROM sessions s
-        JOIN mentorships m ON s.mentorship_id = m.id
-        JOIN users mentor ON m.mentor_id = mentor.id
-        JOIN users mentee ON m.mentee_id = mentee.id
-        WHERE (m.mentor_id = :user_id OR m.mentee_id = :user_id)
-        AND s.scheduled_date > NOW()
-        AND s.status = 'scheduled'
-        ORDER BY s.scheduled_date ASC
-        LIMIT 5";
-
-$upcomingSessions = selectRecords($sql, ['user_id' => $userId]) ?: [];
-
-// Get recent messages
-$sql = "SELECT msg.*, m.mentor_id, m.mentee_id,
-               sender.full_name as sender_name,
-               CASE 
-                   WHEN msg.sender_id = :user_id THEN 'sent'
-                   ELSE 'received'
-               END as message_type
-        FROM messages msg
-        JOIN mentorships m ON msg.mentorship_id = m.id
-        JOIN users sender ON msg.sender_id = sender.id
-        WHERE (m.mentor_id = :user_id OR m.mentee_id = :user_id)
-        ORDER BY msg.created_at DESC
-        LIMIT 5";
-
-$recentMessages = selectRecords($sql, ['user_id' => $userId]) ?: [];
-
-// Get pending mentorship requests
-$pendingRequests = [];
-if ($userRole === 'mentor') {
-    $sql = "SELECT m.*, u.full_name as mentee_name, u.email as mentee_email
-            FROM mentorships m 
-            JOIN users u ON m.mentee_id = u.id 
-            WHERE m.mentor_id = :user_id AND m.status = 'pending'
-            ORDER BY m.created_at DESC";
-    $pendingRequests = selectRecords($sql, ['user_id' => $userId]) ?: [];
-} else {
-    $sql = "SELECT m.*, u.full_name as mentor_name, u.email as mentor_email
-            FROM mentorships m 
-            JOIN users u ON m.mentor_id = u.id 
-            WHERE m.mentee_id = :user_id AND m.status = 'pending'
-            ORDER BY m.created_at DESC";
-    $pendingRequests = selectRecords($sql, ['user_id' => $userId]) ?: [];
+// Check if database is properly set up
+$databaseSetup = false;
+try {
+    $tablesCheck = selectRecord("SHOW TABLES LIKE 'mentorships'");
+    $databaseSetup = ($tablesCheck !== false);
+} catch (Exception $e) {
+    $databaseSetup = false;
 }
 ?>
 
 <?php include '../includes/header.php'; ?>
 
 <div class="container">
+    <?php if (!$databaseSetup): ?>
+    <!-- Database Setup Warning -->
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;">
+        <h4 style="color: #856404; margin: 0 0 10px 0;">⚠️ Database Setup Required</h4>
+        <p style="color: #856404; margin: 0 0 10px 0;">
+            It looks like your database tables haven't been created yet. Please set up your database to use all dashboard features.
+        </p>
+        <a href="../setup_database.php" style="background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-size: 14px;">
+            🚀 Set Up Database Now
+        </a>
+        <a href="dashboard-debug.php" style="background: #6c757d; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-size: 14px; margin-left: 10px;">
+            🔍 Run Diagnostics
+        </a>
+    </div>
+    <?php endif; ?>
+
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="dashboard-title">
@@ -310,8 +343,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 300000); // 5 minutes
     
-    // Check session status periodically
-    checkSession();
+    // Session check disabled - causes infinite reload
+    // checkSession();
 });
 
 function respondToRequest(requestId, action) {

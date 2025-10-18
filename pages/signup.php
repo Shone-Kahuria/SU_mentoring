@@ -11,6 +11,7 @@
  */
 
 require_once '../includes/functions.php';
+// PHPMailer is loaded via Composer autoloader in functions.php
 startSession();
 
 $pageTitle = 'Sign Up - MentorConnect';
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'email' => sanitizeInput($_POST['email'] ?? ''),
             'password' => $_POST['password'] ?? '',
             'confirm_password' => $_POST['confirm_password'] ?? '',
+            'gender' => strtolower(sanitizeInput($_POST['gender'] ?? '')),
             'role' => sanitizeInput($_POST['role'] ?? '')
         ];
         
@@ -69,6 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Passwords do not match.';
         }
         
+        if (empty($formData['gender']) || !isValidGender($formData['gender'])) {
+            $errors[] = 'Please select a valid gender.';
+        }
+
         if (empty($formData['role']) || !in_array($formData['role'], ['mentor', 'mentee'])) {
             $errors[] = 'Please select a valid role.';
         }
@@ -85,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userData = [
                     'full_name' => $formData['full_name'],
                     'email' => $formData['email'],
+                    'gender' => $formData['gender'],
                     'password_hash' => hashPassword($formData['password']),
                     'role' => $formData['role'],
                     'email_verification_token' => generateRandomString(64),
@@ -94,19 +101,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userId = insertRecord('users', $userData);
                 
                 if ($userId) {
-                    // Send welcome email
-                    sendWelcomeEmail($formData['email'], $formData['full_name'], $formData['role']);
+                    // Send OTP email for verification
+                    $result = sendOTP($formData['email'], $formData['full_name']);
                     
-                    // Log the signup activity
-                    logActivity('user_signup', [
-                        'user_id' => $userId,
-                        'role' => $formData['role'],
-                        'ip_address' => $clientIP
-                    ]);
-                    
-                    // Set success message and redirect
-                    setFlashMessage('Account created successfully! Please log in to continue.', 'success');
-                    redirect('login.php');
+                    if ($result === false) {
+                        // OTP sending failed completely - clean up the user record
+                        deleteRecord('users', 'id = :id', ['id' => $userId]);
+                        $errors[] = 'Failed to send verification code. Please try again or contact support.';
+                        error_log("OTP sending failed for user email: {$formData['email']}");
+                        
+                    } elseif (is_array($result) && isset($result['otp'])) {
+                        // OTP generated successfully (sent or dev mode)
+                        $_SESSION['temp_user_id'] = $userId;
+                        $_SESSION['otp'] = $result['otp'];
+                        $_SESSION['otp_time'] = time();
+                        
+                        // Log the signup activity
+                        logActivity('user_signup', [
+                            'user_id' => $userId,
+                            'role' => $formData['role'],
+                            'gender' => $formData['gender'],
+                            'ip_address' => $clientIP
+                        ]);
+                        
+                        // Different messages for dev mode vs production
+                        if (isset($result['dev_mode']) && $result['dev_mode']) {
+                            // Development mode - SMTP not configured
+                            setFlashMessage('Account created! [DEV MODE] Check server logs for your verification code.', 'info');
+                            error_log("=== DEVELOPMENT MODE OTP ===");
+                            error_log("User: {$formData['email']}");
+                            error_log("OTP Code: {$result['otp']}");
+                            error_log("===========================");
+                        } else {
+                            // Production mode - email sent
+                            setFlashMessage('Account created! Please enter the verification code sent to your email.', 'success');
+                        }
+                        
+                        ob_end_clean(); // Clear any output buffers
+                        redirect('verify-otp.php');
+                    } else {
+                        // Unexpected response format
+                        deleteRecord('users', 'id = :id', ['id' => $userId]);
+                        $errors[] = 'An unexpected error occurred. Please try again.';
+                        error_log("Unexpected OTP response format for user: {$formData['email']}");
+                    }
                 } else {
                     $errors[] = 'Failed to create account. Please try again.';
                 }
@@ -207,6 +245,23 @@ $csrfToken = generateCSRFToken();
                     <button type="button" class="password-toggle" aria-label="Show password">👁️</button>
                 </div>
             </div>
+
+            <!-- Gender Selection -->
+            <div class="form-group">
+                <label>Gender *</label>
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="gender" value="male" 
+                               <?php echo (($formData['gender'] ?? '') === 'male') ? 'checked' : ''; ?> required>
+                        <span>Male</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="gender" value="female" 
+                               <?php echo (($formData['gender'] ?? '') === 'female') ? 'checked' : ''; ?> required>
+                        <span>Female</span>
+                    </label>
+                </div>
+            </div>
             
             <!-- Role Selection -->
             <div class="form-group">
@@ -276,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = document.getElementById('email').value.trim();
         const password = passwordField.value;
         const confirmPassword = confirmPasswordField.value;
+    const gender = document.querySelector('input[name="gender"]:checked');
         const role = document.querySelector('input[name="role"]:checked');
         
         let errors = [];
@@ -296,6 +352,10 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push('Passwords do not match.');
         }
         
+        if (!gender) {
+            errors.push('Please select your gender.');
+        }
+
         if (!role) {
             errors.push('Please select your role.');
         }

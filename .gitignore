@@ -87,6 +87,8 @@ vendor/
 node_modules/
 bower_components/
 packages/
+Plugins/
+plugins/
 
 # Composer
 composer.phar
@@ -222,6 +224,12 @@ phpunit.xml
 tests/coverage/
 coverage/
 test_results/
+
+# Development and debug files
+*debug*.php
+clear_cache.php
+test_*.php
+demo_*.php
 
 # Development tools
 .php_cs.cache

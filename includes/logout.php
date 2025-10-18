@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Regular request
         setFlashMessage('You have been logged out successfully.', 'success');
-        redirect('../login.php');
+        redirect('../pages/login.php');
     }
 } else {
-    redirect('../dashboard.php');
+    redirect('../pages/dashboard.php');
 }
 ?>

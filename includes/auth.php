@@ -46,7 +46,7 @@ function auth_get_user() {
     $user_id = auth_get_user_id();
     if (!$user_id) return null;
     
-    $sql = "SELECT id, full_name, email, role, created_at, last_login FROM users WHERE id = :id";
+    $sql = "SELECT id, full_name, email, gender, role, created_at, last_login FROM users WHERE id = :id";
     return db_select_one($sql, ['id' => $user_id]);
 }
 
@@ -54,7 +54,7 @@ function auth_get_user() {
  * Login user
  */
 function auth_login($email, $password) {
-    $sql = "SELECT id, full_name, email, password_hash, role, is_active FROM users WHERE email = :email";
+    $sql = "SELECT id, full_name, email, gender, password_hash, role, is_active FROM users WHERE email = :email";
     $user = db_select_one($sql, ['email' => $email]);
     
     if ($user && $user['is_active'] && password_verify($password, $user['password_hash'])) {
@@ -62,7 +62,8 @@ function auth_login($email, $password) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_name'] = $user['full_name'];
-        $_SESSION['user_email'] = $user['email'];
+    $_SESSION['user_email'] = $user['email'];
+    $_SESSION['user_gender'] = strtolower($user['gender'] ?? '');
         
         // Update last login
         db_update('users', ['last_login' => date('Y-m-d H:i:s')], 'id = :id', ['id' => $user['id']]);
@@ -91,7 +92,7 @@ function auth_logout() {
  */
 function auth_require_login() {
     if (!auth_is_logged_in()) {
-        header('Location: ../login.php');
+        header('Location: ../pages/login.php');
         exit();
     }
 }
@@ -103,7 +104,7 @@ function auth_require_role($required_role) {
     auth_require_login();
     $user_role = auth_get_user_role();
     if ($user_role !== $required_role) {
-        header('Location: ../dashboard.php');
+        header('Location: ../pages/dashboard.php');
         exit();
     }
 }
@@ -172,15 +173,21 @@ function auth_email_exists($email, $exclude_user_id = null) {
 /**
  * Create new user
  */
-function auth_create_user($full_name, $email, $password, $role) {
+function auth_create_user($full_name, $email, $password, $role, $gender = 'male') {
     // Check if email already exists
     if (auth_email_exists($email)) {
         return false;
+    }
+    $allowedGenders = ['male', 'female'];
+    $gender = strtolower($gender);
+    if (!in_array($gender, $allowedGenders, true)) {
+        $gender = 'male';
     }
     
     $user_data = [
         'full_name' => $full_name,
         'email' => $email,
+        'gender' => $gender,
         'password_hash' => auth_hash_password($password),
         'role' => $role,
         'created_at' => date('Y-m-d H:i:s')
