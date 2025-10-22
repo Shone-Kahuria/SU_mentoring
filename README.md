@@ -40,7 +40,27 @@ git clone https://github.com/Shone-Kahuria/SU_mentoring.git
 cd SU_mentoring
 ```
 
-### 2. Set Up Environment Configuration
+### 2. Install Dependencies
+
+**This is required!** The project uses Composer for dependency management (PHPMailer).
+
+```bash
+# Install Composer if you don't have it
+# Visit: https://getcomposer.org/download/
+
+# Install project dependencies
+composer install
+
+# For production (optimized autoloader)
+composer install --no-dev --optimize-autoloader
+```
+
+**Windows Users**: If you get "composer not recognized" error:
+1. Download and install Composer from https://getcomposer.org/Composer-Setup.exe
+2. Restart your terminal/command prompt
+3. Run `composer install` from the project directory
+
+### 3. Set Up Environment Configuration
 
 **IMPORTANT**: Never commit your actual credentials!
 
