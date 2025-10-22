@@ -172,6 +172,20 @@ function getUserGender($userId) {
 }
 
 /**
+ * Get user's role (mentor or mentee)
+ * @param int $userId User ID
+ * @return string|null User role or null if not found
+ */
+function getUserRole($userId) {
+    if (!$userId) {
+        return null;
+    }
+
+    $record = selectRecord("SELECT role FROM users WHERE id = :id", ['id' => $userId]);
+    return $record && isset($record['role']) ? $record['role'] : null;
+}
+
+/**
  * Ensure mentor and mentee share the same gender when establishing mentorships
  * @param int $mentorId
  * @param int $menteeId
