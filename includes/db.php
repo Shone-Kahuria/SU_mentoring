@@ -1,28 +1,27 @@
 <?php
 /**
  * Database Connection (db.php)
- * Simplified database connection file for modular structure
+ * Uses environment configuration - NEVER hardcode credentials here!
  */
 
-// Database configuration - try to load from config first
-$db_config = [
-    'host' => 'localhost',
-    'dbname' => 'mentoring_website', 
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8mb4'
-];
-
-// Try to load from global config if available
-if (isset($config)) {
-    $db_config = [
-        'host' => $config['db_host'] ?? $db_config['host'],
-        'dbname' => $config['db_name'] ?? $db_config['dbname'],
-        'username' => $config['db_username'] ?? $db_config['username'],
-        'password' => $config['db_password'] ?? $db_config['password'],
-        'charset' => $config['db_charset'] ?? $db_config['charset']
-    ];
+// Load environment configuration
+$envFile = __DIR__ . '/.env.php';
+if (file_exists($envFile)) {
+    require_once $envFile;
+} else {
+    // Fallback error if .env.php doesn't exist
+    error_log("CRITICAL: .env.php file not found! Copy .env.example.php to includes/.env.php and configure it.");
+    die("Configuration error. Please contact administrator. (Missing .env.php)");
 }
+
+// Database configuration from environment
+$db_config = [
+    'host' => defined('DB_HOST') ? DB_HOST : 'localhost',
+    'dbname' => defined('DB_NAME') ? DB_NAME : 'mentoring_website',
+    'username' => defined('DB_USER') ? DB_USER : 'root',
+    'password' => defined('DB_PASS') ? DB_PASS : '',
+    'charset' => defined('DB_CHARSET') ? DB_CHARSET : 'utf8mb4'
+];
 
 try {
     $dsn = "mysql:host={$db_config['host']};dbname={$db_config['dbname']};charset={$db_config['charset']}";

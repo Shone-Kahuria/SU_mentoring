@@ -62,7 +62,22 @@ composer install --no-dev --optimize-autoloader
 
 ### 3. Set Up Environment Configuration
 
-**IMPORTANT**: Never commit your actual credentials!
+**CRITICAL SECURITY**: Never commit your actual credentials! Database passwords are stored in `includes/.env.php` which is ignored by Git.
+
+```bash
+# The .env.php file already exists with configured credentials
+# Each team member should have their own includes/.env.php file
+# This file is in .gitignore and will NOT be committed
+
+# If you need to update your database password:
+# Edit includes/.env.php and change DB_PASS to your MySQL password
+```
+
+**For New Team Members**:
+1. The `includes/.env.php` file should already exist on your machine
+2. If it doesn't exist, copy from example: `cp .env.example.php includes/.env.php`
+3. Edit `includes/.env.php` and update `DB_PASS` with YOUR MySQL root password
+4. **NEVER commit includes/.env.php to Git!**
 
 ```bash
 # Copy the example environment file
