@@ -1,0 +1,26 @@
+# Git Attributes for SU_mentoring
+# Ensures consistent line endings and highlights sensitive files
+
+# Auto detect text files and normalize line endings
+* text=auto
+
+# Force LF for shell scripts
+*.sh text eol=lf
+
+# Force CRLF for Windows batch files
+*.bat text eol=crlf
+
+# Mark sensitive files that should NEVER contain credentials
+includes/db.php diff=php linguist-language=PHP
+includes/config.php diff=php linguist-language=PHP
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+
+# SQL files (review carefully before committing)
+*.sql linguist-language=SQL
