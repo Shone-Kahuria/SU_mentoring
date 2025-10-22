@@ -18,9 +18,15 @@ $userId = getCurrentUserId();
 $userRole = getUserRole($userId);
 $pageTitle = 'Set Availability - SU Mentoring';
 
+// DEBUG: Log what we're getting
+error_log("Availability page - User ID: " . var_export($userId, true));
+error_log("Availability page - User Role: " . var_export($userRole, true));
+
 // Only mentors can access this page
 if ($userRole !== 'mentor') {
-    setFlashMessage('Only mentors can set availability.', 'error');
+    // More helpful error message
+    $message = "Only mentors can set availability. Your current role is: " . ($userRole ?? 'unknown');
+    setFlashMessage($message, 'error');
     header('Location: dashboard.php');
     exit();
 }
