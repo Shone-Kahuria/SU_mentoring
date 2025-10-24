@@ -169,99 +169,121 @@ if (empty($_POST) && isset($_COOKIE['remember_token'])) {
 $csrfToken = generateCSRFToken();
 ?>
 
-<?php include '../includes/header.php'; ?>
+<?php
+// Set page variables for modern template
+$page_title = 'Welcome Back';
+$show_nav = true;
+$base_url = rtrim(dirname($_SERVER['PHP_SELF']), '/pages');
 
-<div class="container">
-    <div class="form-container">
-        <h1 class="form-title">Welcome Back</h1>
-        <p class="text-center mb-2">Sign in to your MentorConnect account</p>
-        
-        <?php if (!empty($errors)): ?>
-            <div class="alert alert-error">
-                <ul style="margin: 0; padding-left: 20px;">
-                    <?php foreach ($errors as $error): ?>
-                        <li><?php echo htmlspecialchars($error); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-        
-        <form method="POST" action="login.php<?php echo isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : ''; ?>" id="loginForm" novalidate>
-            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
-            
-            <!-- Email Field -->
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-control" 
-                    value="<?php echo htmlspecialchars($email); ?>"
-                    required
-                    autocomplete="email"
-                    placeholder="Enter your email address"
-                >
-            </div>
-            
-            <!-- Password Field -->
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-container">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="form-control" 
-                        required
-                        autocomplete="current-password"
-                        placeholder="Enter your password"
-                    >
-                    <button type="button" class="password-toggle" aria-label="Show password">👁️</button>
-                </div>
-            </div>
-            
-            <!-- Remember Me and Forgot Password -->
-            <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="display: flex; align-items: center; gap: 8px; margin: 0;">
-                    <input type="checkbox" name="remember_me" id="remember_me">
-                    <span>Remember me for 30 days</span>
-                </label>
-                <a href="forgot-password.php" class="link">Forgot password?</a>
-            </div>
-            
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Sign In</button>
-        </form>
-        
-        <div class="text-center mt-2">
-            <p>Don't have an account? <a href="signup.php" class="link">Create one here</a></p>
-        </div>
-        
-        <!-- Demo Accounts (Remove in production) -->
-        <div class="alert alert-warning mt-2">
-            <strong>Demo Accounts:</strong><br>
-            <small>
-                Mentor: admin@mentoring.com | Password: Admin123!<br>
-                (Create additional accounts via signup)
-            </small>
-        </div>
+// Include modern header
+require_once '../includes/modern_header.php';
+?>
+
+<div class="card">
+    <div class="text-center mb-4">
+        <h2>Sign in to your account</h2>
+        <p class="text-muted">Welcome back to SU Mentoring</p>
     </div>
+
+    <?php if (!empty($errors)): ?>
+        <div class="alert alert-danger">
+            <ul style="margin: 0; padding-left: 20px;">
+                <?php foreach ($errors as $error): ?>
+                    <li><?php echo htmlspecialchars($error); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" action="login.php<?php echo isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : ''; ?>" id="loginForm" novalidate>
+        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+        
+        <div class="form-group">
+            <label for="email">
+                <i class="fas fa-envelope"></i> Email Address
+            </label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-control" 
+                value="<?php echo htmlspecialchars($email); ?>"
+                required
+                autocomplete="email"
+                placeholder="Enter your email address"
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="password">
+                <i class="fas fa-lock"></i> Password
+            </label>
+            <div class="password-container">
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    required
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                >
+                <button type="button" class="btn btn-outline password-toggle" aria-label="Show password">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="form-group d-flex justify-content-between align-items-center">
+            <label class="d-flex align-items-center gap-3">
+                <input type="checkbox" name="remember_me" id="remember_me">
+                <span>Remember me</span>
+            </label>
+            <a href="forgot-password.php" class="nav-link">Forgot password?</a>
+        </div>
+        
+        <div class="form-group d-flex justify-content-between gap-3">
+            <button type="submit" class="btn btn-primary" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            <a href="signup.php" class="btn btn-outline">
+                <i class="fas fa-user-plus"></i> Create Account
+            </a>
+        </div>
+    </form>
+
+    <?php if (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT): ?>
+    <div class="alert alert-warning mt-4">
+        <h4 class="mb-2"><i class="fas fa-info-circle"></i> Demo Accounts</h4>
+        <p class="mb-0"><strong>Mentor:</strong> admin@mentoring.com<br>
+        <strong>Password:</strong> Admin123!</p>
+    </div>
+    <?php endif; ?>
 </div>
 
 <script>
-// Enhanced login form functionality
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('loginForm');
     const emailField = document.getElementById('email');
     const passwordField = document.getElementById('password');
     const loginBtn = document.getElementById('loginBtn');
-    const rememberCheckbox = document.getElementById('remember_me');
+    const passwordToggle = document.querySelector('.password-toggle');
     
-    // Auto-focus email field
+    // Auto-focus email field on load
     emailField.focus();
     
-    // Enhanced form validation
+    // Password visibility toggle
+    passwordToggle.addEventListener('click', function() {
+        const type = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = type;
+        
+        // Update icon
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+    
+    // Form validation and submission
     form.addEventListener('submit', function(e) {
         const email = emailField.value.trim();
         const password = passwordField.value;
@@ -269,77 +291,65 @@ document.addEventListener('DOMContentLoaded', function() {
         let errors = [];
         
         if (!email) {
-            errors.push('Email is required.');
+            errors.push('Email is required');
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            errors.push('Please enter a valid email address.');
+            errors.push('Please enter a valid email address');
         }
         
         if (!password) {
-            errors.push('Password is required.');
+            errors.push('Password is required');
         }
         
         if (errors.length > 0) {
             e.preventDefault();
-            showAlert(errors.join(' '), 'error');
-            return false;
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger';
+            alertDiv.innerHTML = `
+                <ul style="margin: 0; padding-inline-start: 20px;">
+                    ${errors.map(error => `<li>${error}</li>`).join('')}
+                </ul>
+            `;
+            
+            // Remove any existing alerts
+            const existingAlerts = form.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            // Insert new alert at the top of the form
+            form.insertBefore(alertDiv, form.firstChild);
+            return;
         }
         
         // Show loading state
         loginBtn.disabled = true;
-        loginBtn.textContent = 'Signing in...';
+        const originalContent = loginBtn.innerHTML;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
         
-        // Re-enable button after 5 seconds (in case of server issues)
+        // Re-enable button after timeout (in case of server issues)
         setTimeout(() => {
             loginBtn.disabled = false;
-            loginBtn.textContent = 'Sign In';
+            loginBtn.innerHTML = originalContent;
         }, 5000);
     });
     
     // Enter key navigation
     emailField.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
+            e.preventDefault();
             passwordField.focus();
         }
     });
     
-    passwordField.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            form.submit();
-        }
-    });
-    
-    // Remember me tooltip
-    rememberCheckbox.addEventListener('mouseenter', function() {
-        this.title = 'Keep me signed in on this device for 30 days';
-    });
-    
-    // Demo account quick fill (remove in production)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('demo') === 'mentor') {
-        emailField.value = 'admin@mentoring.com';
-        passwordField.value = 'Admin123!';
-    }
-    
-    // Clear form on page refresh (security)
+    // Clear sensitive data on page unload
     window.addEventListener('beforeunload', function() {
-        if (passwordField.value) {
-            passwordField.value = '';
-        }
+        passwordField.value = '';
+    });
+    
+    // Smooth transition for alerts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        alert.style.transition = 'opacity 0.3s ease-in-out';
     });
 });
-
-// Add demo account quick fill buttons (remove in production)
-function fillDemo(type) {
-    const emailField = document.getElementById('email');
-    const passwordField = document.getElementById('password');
-    
-    if (type === 'mentor') {
-        emailField.value = 'admin@mentoring.com';
-        passwordField.value = 'Admin123!';
-    }
-    
-    passwordField.focus();
-}
 </script>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once '../includes/modern_header.php'; ?>
