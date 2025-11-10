@@ -1,6 +1,6 @@
 <?php
 /**
- * Application Initialization
+ * Application Initialization.
  * Sets up base URL and loads core dependencies
  */
 
