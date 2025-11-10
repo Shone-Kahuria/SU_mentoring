@@ -40,7 +40,7 @@ try {
 }
 
 /**
- * Execute a prepared statement and return statement object
+ * Execute a prepared statement and return statement object.
  */
 if (!function_exists('executeQuery')) {
     function executeQuery($sql, $params = []) {
