@@ -47,7 +47,7 @@ if (!function_exists('executeQuery')) {
         global $pdo;
         
         if ($pdo === null) {
-            error_log("Database connection not available");
+            error_log("Database connection not available.");
             return false;
         }
         
