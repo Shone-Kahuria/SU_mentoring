@@ -7,7 +7,7 @@
 require_once 'db.php';
 
 /**
- * Start session if not already started
+ * Start session if not already started.
  */
 function auth_start_session() {
     if (session_status() === PHP_SESSION_NONE) {
