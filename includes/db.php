@@ -63,7 +63,7 @@ if (!function_exists('executeQuery')) {
 }
 
 /**
- * Select multiple records
+ * Select multiple records.
  */
 if (!function_exists('selectRecords')) {
     function selectRecords($sql, $params = []) {
