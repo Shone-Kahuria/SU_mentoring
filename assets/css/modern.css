@@ -252,10 +252,133 @@ input[type='checkbox'] {
 .align-items-center { align-items: center; }
 .gap-3 { gap: 1rem; }
 
+/* Floating Action Button */
+.fab-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 999;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.fab-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--primary-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+    font-size: 1.5rem;
+}
+
+.fab-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.fab-button.fab-main {
+    background-color: var(--primary-blue);
+    z-index: 2;
+}
+
+.fab-actions {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+}
+
+.fab-container.active .fab-actions {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.fab-action-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: white;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+.fab-action-button:hover {
+    transform: scale(1.1);
+    background-color: var(--gray-50);
+}
+
+.fab-tooltip {
+    position: absolute;
+    right: 64px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.fab-action-button:hover .fab-tooltip {
+    opacity: 1;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .container { padding: 1rem 0.75rem; }
-    .card { padding: 2rem 1.5rem; margin: 0 0.5rem; }
-    .btn { width: 100%; }
-    .d-flex.gap-3 { flex-direction: column; gap: 0.75rem; }
-    .d-flex.justify-content-between { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .container { 
+        padding: 1rem 0.75rem; 
+    }
+    .card { 
+        padding: 2rem 1.5rem; 
+        margin: 0 0.5rem; 
+    }
+    .btn { 
+        width: 100%; 
+        margin: 0.5rem 0;
+    }
+    .nav-menu {
+        flex-direction: column;
+        align-items: center;
+    }
+    .fab-container {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    .fab-tooltip {
+        display: none;
+    }
+    .d-flex.gap-3 { 
+        flex-direction: column; 
+        gap: 0.75rem; 
+    }
+    .d-flex.justify-content-between { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 0.75rem; 
+    }
 }

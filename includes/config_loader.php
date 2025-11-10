@@ -17,9 +17,9 @@ class ConfigLoader {
             return;
         }
         
-        // Look for environment file
-        $envFile = __DIR__ . '/.env.php';
-        $exampleFile = __DIR__ . '/.env.example.php';
+        // Look for environment file in root directory
+        $envFile = dirname(__DIR__) . '/env.php';
+        $exampleFile = dirname(__DIR__) . '/env.example.php';
         
         if (file_exists($envFile)) {
             // Load actual environment file
