@@ -1,7 +1,18 @@
 <?php
 /**
- * Application Initialization.
+ * Application Initialization
  * Sets up base URL and loads core dependencies
+ * 
+ * This module handles all bootstrapping operations:
+ * - Environment configuration loading
+ * - Base URL detection and setup
+ * - Timezone configuration
+ * - Error reporting configuration
+ * - Core dependency loading
+ * 
+ * Environment-specific features:
+ * - Development: Full error reporting
+ * - Production: Errors logged, not displayed
  */
 
 // Load configuration

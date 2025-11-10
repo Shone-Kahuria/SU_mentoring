@@ -1,6 +1,17 @@
 <?php
 /**
- * Session check endpoint for AJAX requests
+ * Session Check Endpoint
+ * Provides AJAX session validation functionality
+ * 
+ * Purpose:
+ * - Validate user session status
+ * - Support client-side session checks
+ * - Prevent session timeouts
+ * 
+ * Usage:
+ * - Called via AJAX from client JavaScript
+ * - Returns JSON response with session status
+ * - Used by session keepalive functionality
  */
 
 require_once '../includes/functions.php';

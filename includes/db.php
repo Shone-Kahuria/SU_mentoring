@@ -1,7 +1,20 @@
 <?php
 /**
- * Database Connection (db.php)
- * Uses environment configuration - NEVER hardcode credentials here!
+ * Database Connection Module (db.php)
+ * Provides secure database connectivity and query utilities
+ * 
+ * Security features:
+ * - Environment-based configuration
+ * - PDO prepared statements
+ * - Connection pooling
+ * - Error handling and logging
+ * 
+ * IMPORTANT: NEVER hardcode credentials in this file!
+ * 
+ * Dependencies:
+ * - .env.php for credentials
+ * - PDO extension
+ * - MySQL/MariaDB server
  */
 
 // Load environment configuration
@@ -10,7 +23,10 @@ if (file_exists($envFile)) {
     require_once $envFile;
 } else {
     // Fallback error if .env.php doesn't exist
-    error_log("CRITICAL: .env.php file not found! Copy .env.example.php to includes/.env.php and configure it.");
+    error_log("[CRITICAL] Database configuration error:");
+    error_log("          - .env.php file not found");
+    error_log("          - Copy .env.example.php to includes/.env.php");
+    error_log("          - Update credentials in .env.php");
     die("Configuration error. Please contact administrator. (Missing .env.php)");
 }
 

@@ -2,6 +2,18 @@
 /**
  * Email Configuration and Helper Functions
  * Provides email functionality for the mentoring website
+ * 
+ * Features:
+ * - SMTP email configuration
+ * - Email template management
+ * - Welcome emails
+ * - Password reset functionality
+ * - Session notifications
+ * - OTP verification
+ * 
+ * Requirements:
+ * - PHPMailer library (via Composer)
+ * - Valid SMTP credentials
  */
 
 // Load Composer autoloader for PHPMailer (optional)

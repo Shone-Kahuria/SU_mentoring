@@ -1,8 +1,19 @@
 <?php
 /**
  * Secure Configuration Loader
- * This file safely loads environment variables from .env.php
- * and provides fallback to default values
+ * Handles environment configuration management securely
+ * 
+ * Features:
+ * - Safe environment variable loading
+ * - Development/production mode detection
+ * - Intelligent fallback values
+ * - Configuration validation
+ * - Secure credential handling
+ * 
+ * Usage:
+ * 1. Copy env.example.php to env.php
+ * 2. Update env.php with actual values
+ * 3. Use ConfigLoader::get() to access values
  */
 
 class ConfigLoader {
