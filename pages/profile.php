@@ -400,6 +400,7 @@ $csrfToken = generateCSRFToken();
         <div class="card-content">
             <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
                 <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
+                <!-- Change Password action: user can reset or change their password -->
                 <a href="change-password.php" class="btn btn-secondary">Change Password</a>
                 <?php if ($userRole === 'mentee'): ?>
                     <a href="find-mentor.php" class="btn btn-primary">Find More Mentors</a>
