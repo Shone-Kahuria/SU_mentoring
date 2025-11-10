@@ -31,7 +31,7 @@ $email_config = [
 ];
 
 /**
- * Create and configure PHPMailer instance
+ * Create and configure PHPMailer instance.
  */
 function createMailer() {
     global $email_config;
