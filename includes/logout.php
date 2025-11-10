@@ -1,6 +1,6 @@
 <?php
 /**
- * Logout functionality
+ * Logout functionality.
  */
 
 require_once 'functions.php';
