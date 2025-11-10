@@ -1,7 +1,33 @@
 <?php
 /**
  * Modern Header Template
+ * Backwards-compatible helpers: some pages include this header
+ * but may use different sets of utility functions (auth_* vs isLoggedIn()).
+ * Provide small wrapper functions when missing so templates don't fatal.
  */
+
+require_once __DIR__ . '/init.php';
+
+// If the project defines isLoggedIn()/getCurrentUserRole()/getFlashMessage()
+// but not the auth_* wrappers, define them to keep templates compatible.
+if (!function_exists('auth_is_logged_in') && function_exists('isLoggedIn')) {
+    function auth_is_logged_in() {
+        return isLoggedIn();
+    }
+}
+
+if (!function_exists('auth_get_user_role') && function_exists('getCurrentUserRole')) {
+    function auth_get_user_role() {
+        return getCurrentUserRole();
+    }
+}
+
+if (!function_exists('auth_get_flash') && function_exists('getFlashMessage')) {
+    function auth_get_flash() {
+        return getFlashMessage();
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
