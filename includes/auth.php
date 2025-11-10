@@ -1,7 +1,7 @@
 <?php
 /**
  * Authentication Helper (auth.php)
- * Handles user authentication and session management
+ * Handles user authentication and session managing
  */
 
 require_once 'db.php';
