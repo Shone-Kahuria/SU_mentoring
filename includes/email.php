@@ -4,8 +4,15 @@
  * Provides email functionality for the mentoring website
  */
 
-// Load Composer autoloader for PHPMailer
-require_once __DIR__ . '/../vendor/autoload.php';
+// Load Composer autoloader for PHPMailer (optional)
+$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
+    $GLOBALS['COMPOSER_AUTOLOADED'] = true;
+} else {
+    // Composer dependencies not installed. Set flag and continue with graceful failures.
+    $GLOBALS['COMPOSER_AUTOLOADED'] = false;
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -28,12 +35,20 @@ $email_config = [
  */
 function createMailer() {
     global $email_config;
-    
+    // If PHPMailer classes are not available, return false and log a helpful message.
+    if (!class_exists('\\PHPMailer\\PHPMailer\\PHPMailer')) {
+        if (empty($GLOBALS['COMPOSER_AUTOLOADED'])) {
+            error_log('PHPMailer not available: please run "composer install" in the project root to install dependencies.');
+        } else {
+            error_log('PHPMailer classes not found even though composer autoload was present.');
+        }
+        return false;
+    }
+
     $mail = new PHPMailer(true);
-    
+
     try {
-        // Use built-in PHP mail function for simplicity
-        // In production, configure SMTP properly
+        // Configure SMTP
         $mail->isSMTP();
         $mail->Host = $email_config['smtp_host'];
         $mail->SMTPAuth = !empty($email_config['smtp_username']);
@@ -41,19 +56,19 @@ function createMailer() {
         $mail->Password = $email_config['smtp_password'];
         $mail->SMTPSecure = $email_config['smtp_secure'];
         $mail->Port = $email_config['smtp_port'];
-        
+
         // Set default from
         $mail->setFrom($email_config['from_email'], $email_config['from_name']);
-        
+
         // Content
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
-        
-    } catch (Exception $e) {
+
+    } catch (\Throwable $e) {
         error_log("Mailer setup failed: " . $e->getMessage());
         return false;
     }
-    
+
     return $mail;
 }
 
@@ -76,7 +91,7 @@ function sendWelcomeEmail($userEmail, $userName, $userRole) {
         
         return $mail->send();
         
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         error_log("Welcome email failed: " . $e->getMessage());
         return false;
     }
@@ -102,7 +117,7 @@ function sendPasswordResetEmail($userEmail, $userName, $resetToken) {
         
         return $mail->send();
         
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         error_log("Password reset email failed: " . $e->getMessage());
         return false;
     }
@@ -134,7 +149,7 @@ function sendSessionNotificationEmail($userEmail, $userName, $sessionTitle, $ses
         
         return $mail->send();
         
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         error_log("Session notification email failed: " . $e->getMessage());
         return false;
     }
@@ -159,7 +174,7 @@ function sendMentorshipRequestEmail($mentorEmail, $mentorName, $menteeName, $req
         
         return $mail->send();
         
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         error_log("Mentorship request email failed: " . $e->getMessage());
         return false;
     }
@@ -434,7 +449,7 @@ function sendOTP($email, $userName = 'User') {
             error_log("OTP email failed: " . $mail->ErrorInfo);
             return false;
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         error_log("OTP generation error: " . $e->getMessage());
         return false;
     }
@@ -618,7 +633,7 @@ function testEmailConfiguration() {
         // Don't actually send the test email, just validate configuration
         return ['success' => true, 'message' => 'Email configuration appears to be valid'];
         
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         return ['success' => false, 'message' => 'Email test failed: ' . $e->getMessage()];
     }
 }

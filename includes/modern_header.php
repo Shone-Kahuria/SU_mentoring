@@ -5,8 +5,11 @@
  * but may use different sets of utility functions (auth_* vs isLoggedIn()).
  * Provide small wrapper functions when missing so templates don't fatal.
  */
-
+// Load init.php first for base configuration
 require_once __DIR__ . '/init.php';
+
+// Then load auth helpers
+require_once __DIR__ . '/auth.php';
 
 // If the project defines isLoggedIn()/getCurrentUserRole()/getFlashMessage()
 // but not the auth_* wrappers, define them to keep templates compatible.
@@ -27,7 +30,6 @@ if (!function_exists('auth_get_flash') && function_exists('getFlashMessage')) {
         return getFlashMessage();
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,7 +82,7 @@ if (!function_exists('auth_get_flash') && function_exists('getFlashMessage')) {
     <?php endif; ?>
 
     <div class="container">
-        <?php if (isset($page_title)): ?>
+        <?php if (isset($show_page_header) && $show_page_header && isset($page_title)): ?>
         <header class="page-header">
             <h1><?php echo $page_title; ?></h1>
         </header>

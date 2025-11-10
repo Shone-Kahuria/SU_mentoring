@@ -1,9 +1,9 @@
     </div><!-- /.container -->
 
-    <footer class="py-4 mt-4" style="background-color: var(--light-color);">
-        <div class="container">
+    <footer style="background-color: rgba(255, 255, 255, 0.95); padding: 2rem 1rem; margin-top: 3rem; backdrop-filter: blur(10px);">
+        <div style="max-width: 1200px; margin: 0 auto;">
             <div class="text-center">
-                <p>&copy; <?php echo date('Y'); ?> SU Mentoring. All rights reserved.</p>
+                <p style="margin-bottom: 1rem; color: var(--gray-700);">&copy; <?php echo date('Y'); ?> SU Mentoring. All rights reserved.</p>
                 <div class="d-flex justify-content-center gap-3">
                     <a href="#" class="nav-link">Privacy Policy</a>
                     <a href="#" class="nav-link">Terms of Service</a>

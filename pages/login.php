@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'ip_address' => $clientIP
                     ]);
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log('Login error: ' . $e->getMessage());
                 $errors[] = 'An error occurred during login. Please try again.';
             }
@@ -171,9 +171,11 @@ $csrfToken = generateCSRFToken();
 
 <?php
 // Set page variables for modern template
-$page_title = 'Welcome Back';
+$page_title = 'Login - SU Mentoring'; // Used only for <title> tag
 $show_nav = true;
-$base_url = rtrim(dirname($_SERVER['PHP_SELF']), '/pages');
+$show_page_header = false; // Don't show the page header section
+// Base URL should point to the root of the application
+$base_url = '/SU_mentoring';
 
 // Include modern header
 require_once '../includes/modern_header.php';
@@ -352,4 +354,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php require_once '../includes/modern_header.php'; ?>
+<?php require_once '../includes/modern_footer.php'; ?>

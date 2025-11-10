@@ -8,11 +8,19 @@
 // ========================================
 // DATABASE CONFIGURATION
 // ========================================
+<<<<<<< HEAD
 // Database credentials for local development
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'mentoring_website');
 define('DB_USER', 'mentoring_user');
 define('DB_PASS', 'mentoring_pass_123');
+=======
+// Update these with your actual database credentials
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'mentoring_website');
+define('DB_USER', 'your_db_username_here');
+define('DB_PASS', 'your_db_password_here');
+>>>>>>> f4c3c8286a4039b4b0ad186a194f9697f95e0146
 define('DB_CHARSET', 'utf8mb4');
 define('DB_PORT', 3306);
 
