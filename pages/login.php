@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'ip_address' => $clientIP
                     ]);
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log('Login error: ' . $e->getMessage());
                 $errors[] = 'An error occurred during login. Please try again.';
             }
