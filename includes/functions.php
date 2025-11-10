@@ -49,7 +49,7 @@ function isValidGender($gender) {
 }
 
 /**
- * Validate email address
+ * Validate email address.
  * @param string $email Email to validate
  * @return bool True if valid email
  */
