@@ -42,80 +42,92 @@ try {
 /**
  * Execute a prepared statement and return statement object
  */
-function executeQuery($sql, $params = []) {
-    global $pdo;
-    
-    if ($pdo === null) {
-        error_log("Database connection not available");
-        return false;
-    }
-    
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
-    } catch (PDOException $e) {
-        error_log("Database query failed: " . $e->getMessage());
-        return false;
+if (!function_exists('executeQuery')) {
+    function executeQuery($sql, $params = []) {
+        global $pdo;
+        
+        if ($pdo === null) {
+            error_log("Database connection not available");
+            return false;
+        }
+        
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            error_log("Database query failed: " . $e->getMessage());
+            return false;
+        }
     }
 }
 
 /**
  * Select multiple records
  */
-function selectRecords($sql, $params = []) {
-    $stmt = executeQuery($sql, $params);
-    return $stmt ? $stmt->fetchAll() : false;
+if (!function_exists('selectRecords')) {
+    function selectRecords($sql, $params = []) {
+        $stmt = executeQuery($sql, $params);
+        return $stmt ? $stmt->fetchAll() : false;
+    }
 }
 
 /**
  * Select single record
  */
-function selectRecord($sql, $params = []) {
-    $stmt = executeQuery($sql, $params);
-    return $stmt ? $stmt->fetch() : false;
+if (!function_exists('selectRecord')) {
+    function selectRecord($sql, $params = []) {
+        $stmt = executeQuery($sql, $params);
+        return $stmt ? $stmt->fetch() : false;
+    }
 }
 
 /**
  * Insert record and return last insert ID
  */
-function insertRecord($table, $data) {
-    global $pdo;
-    
-    if ($pdo === null) {
-        error_log("Database connection not available for insert");
-        return false;
+if (!function_exists('insertRecord')) {
+    function insertRecord($table, $data) {
+        global $pdo;
+        
+        if ($pdo === null) {
+            error_log("Database connection not available for insert");
+            return false;
+        }
+        $columns = implode(', ', array_keys($data));
+        $placeholders = ':' . implode(', :', array_keys($data));
+        
+        $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
+        $stmt = executeQuery($sql, $data);
+        
+        return $stmt ? $pdo->lastInsertId() : false;
     }
-    $columns = implode(', ', array_keys($data));
-    $placeholders = ':' . implode(', :', array_keys($data));
-    
-    $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
-    $stmt = executeQuery($sql, $data);
-    
-    return $stmt ? $pdo->lastInsertId() : false;
 }
 
 /**
  * Update records
  */
-function updateRecord($table, $data, $where, $where_params = []) {
-    $set_parts = [];
-    foreach (array_keys($data) as $column) {
-        $set_parts[] = "{$column} = :{$column}";
+if (!function_exists('updateRecord')) {
+    function updateRecord($table, $data, $where, $where_params = []) {
+        $set_parts = [];
+        foreach (array_keys($data) as $column) {
+            $set_parts[] = "{$column} = :{$column}";
+        }
+        $set_clause = implode(', ', $set_parts);
+        
+        $sql = "UPDATE {$table} SET {$set_clause} WHERE {$where}";
+        $params = array_merge($data, $where_params);
+        
+        return executeQuery($sql, $params) !== false;
     }
-    $set_clause = implode(', ', $set_parts);
-    
-    $sql = "UPDATE {$table} SET {$set_clause} WHERE {$where}";
-    $params = array_merge($data, $where_params);
-    
-    return executeQuery($sql, $params) !== false;
 }
 
 /**
  * Delete records
  */
-function deleteRecord($table, $where, $where_params = []) {
-    $sql = "DELETE FROM {$table} WHERE {$where}";
-    return executeQuery($sql, $where_params) !== false;
+if (!function_exists('deleteRecord')) {
+    function deleteRecord($table, $where, $where_params = []) {
+        $sql = "DELETE FROM {$table} WHERE {$where}";
+        return executeQuery($sql, $where_params) !== false;
+    }
 }
 ?>

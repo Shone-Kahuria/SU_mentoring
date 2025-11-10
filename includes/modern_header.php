@@ -2,6 +2,8 @@
 /**
  * Modern Header Template
  */
+// Ensure authentication helpers are available for nav/flash helpers
+require_once __DIR__ . '/auth.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,7 +56,7 @@
     <?php endif; ?>
 
     <div class="container">
-        <?php if (isset($page_title)): ?>
+        <?php if (isset($show_page_header) && $show_page_header && isset($page_title)): ?>
         <header class="page-header">
             <h1><?php echo $page_title; ?></h1>
         </header>
