@@ -3,7 +3,7 @@
  * Database Configuration for Mentoring Website
  * 
  * This file contains the database connection settings and utility functions
- * for the mentoring website project
+ * for the mentoring website project.
  */
 
 // Load secure configuration
