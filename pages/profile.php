@@ -402,6 +402,7 @@ $csrfToken = generateCSRFToken();
                 <a href="dashboard.php" class="btn btn-primary">Back to Dashboard</a>
                 <!-- Change Password action: user can reset or change their password -->
                 <a href="forgot-password.php" class="btn btn-secondary" aria-label="Change your password">Change Password</a>
+                <?php // Note: Change Password button redirects to forgot-password flow for password resets ?>
                 <?php if ($userRole === 'mentee'): ?>
                     <a href="find-mentor.php" class="btn btn-primary">Find More Mentors</a>
                 <?php endif; ?>
