@@ -16,7 +16,7 @@ function auth_start_session() {
 }
 
 /**
- * Check if user is logged in
+ * Check if user is logged in.
  */
 function auth_is_logged_in() {
     auth_start_session();
