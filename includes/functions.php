@@ -1,6 +1,13 @@
 <?php
 /**
  * Common utility functions for the Mentoring Website
+ * 
+ * This module provides core functionality used throughout the application:
+ * - Input sanitization and validation
+ * - Session management
+ * - User profile utilities
+ * - Gender validation rules
+ * - Flash message handling
  */
 
 require_once 'config.php';

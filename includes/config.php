@@ -4,9 +4,15 @@
  * 
  * This file contains the database connection settings and utility functions
  * for the mentoring website project.
+ * 
+ * Features:
+ * - Secure configuration loading from .env.php
+ * - PDO database connection management
+ * - Singleton pattern for connection pooling
+ * - Query builder utilities for CRUD operations
  */
 
-// Load secure configuration
+// Load secure configuration from environment file
 require_once __DIR__ . '/config_loader.php';
 ConfigLoader::load();
 
@@ -21,7 +27,8 @@ if (!defined('DB_HOST')) {
     define('DB_CHARSET', ConfigLoader::get('DB_CHARSET', 'utf8mb4'));
 }
 
-// Database connection class
+// Database connection class using singleton pattern
+// Manages a single PDO connection instance for the application
 class Database {
     private static $instance = null;
     private $connection;
