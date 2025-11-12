@@ -143,7 +143,7 @@ class ConfigLoader {
     }
     
     /**
-     * Generate a secure random key
+     * Generate a cryptographically secure key.
      */
     public static function generateSecretKey($length = 32) {
         return bin2hex(random_bytes($length));
