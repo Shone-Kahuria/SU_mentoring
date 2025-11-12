@@ -4,7 +4,7 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; <?php echo date('Y'); ?> MentorConnect. All rights reserved.</p>
-            <p>Connecting mentors and mentees for professional growth and development.</p>
+            <p>Connecting Mentors and Mentees for professional growth and development.</p>
             <!-- Social Links -->
             <div class="social-links">
                 <a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a>
