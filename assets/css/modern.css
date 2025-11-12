@@ -34,8 +34,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 17px;
+    line-height: 1.5;
     color: var(--text-dark);
     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
     min-height: 100vh;
@@ -196,7 +196,7 @@ input[type='checkbox'] {
 }
 
 .alert-warning {
-    background: rgba(245, 158, 11, 0.1);
+    background: rgba(246, 158, 6, 0.1);
     border-left-color: var(--warning);
     color: #92400e;
 }
