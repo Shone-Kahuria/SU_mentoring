@@ -11,9 +11,9 @@
  * - Secure credential handling
  * 
  * Usage:
- * 1. Copy env.example.php to env.php
- * 2. Update env.php with actual values
- * 3. Use ConfigLoader::get() to access values
+ * 1. Copy `env.example.php` to `env.php`.
+ * 2. Update `env.php` with your environment-specific values.
+ * 3. Access values in your application using `ConfigLoader::get('YOUR_KEY')`.
  */
 
 class ConfigLoader {
